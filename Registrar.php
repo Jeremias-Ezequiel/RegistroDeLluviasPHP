@@ -12,14 +12,18 @@ $diaAnterior = date('Y-m-d', strtotime("-1 day"));
     </div>
     <div>
         <label for="cantidad">Cantidad de lluvia en mm:</label>
-        <input type="number" min='0' max="500" name="cantidad" autofocus />
+        <input type="number" min='0' max="400" name="cantidad" autofocus />
     </div>
-    <button name="cancelar">Cancelar</button>
     <button name="registrar">Registrar</button>
+    <button name="cancelar">Cancelar</button>
 </form>
 
 <?php
 // Realizar la conexion a la base de datos
+if (isset($_POST['cancelar'])) {
+    header("Location: ./index.php");
+}
+
 if (isset($_POST['registrar'])) {
     require_once 'Database.php';
 
@@ -27,16 +31,27 @@ if (isset($_POST['registrar'])) {
     $fechaRegistro = $_POST['fecha'];
     $cantidadRegistro = $_POST['cantidad'];
 
+    if (!$cantidadRegistro || !$fechaRegistro) {
+        echo "<h3 class='error-msg'>El campo date y/o cantidad no pueden estar vacio</h3>";
+        return;
+    }
+
     // Verificar si existe un registro con la fecha seleccionada
-    $result = $con->query("SELECT * FROM lluvias WHERE fecha_ID = $fechaRegistro;");
+    $result = $con->query("SELECT * FROM lluvias WHERE fecha_ID = '$fechaRegistro';");
 
     if ($result) {
-        echo "Paso aca";
-        // $con->query("INSERT INTO lluvias VALUES ('$fechaRegistro','$cantidadRegistro');");
+        if ($result->num_rows === 0) {
+            // No existe la fecha entonces debemos consultar
+            $result = $con->query("INSERT INTO lluvias VALUES ('$fechaRegistro',$cantidadRegistro);");
+            if ($result) {
+                echo "<h3 class='exito-msg'>Fecha $fechaRegistro: Cantidad $cantidadRegistro agregada con exito!";
+            }
+        } else {
+            $repetido = $result->fetch_assoc();
+            echo "<h3 class='error-msg'>La fecha ya ha sido ingresada con un valor de " . $repetido['cantidad'] . "</h3>";
+        }
     } else {
-        echo "Fallo al realizar la consultar";
+        echo "<h3 class='error-msg'>Fallo al realizar la consultar</h3>";
     }
-    // Insertar en la base de datos
-
 }
 ?>

@@ -62,8 +62,10 @@ main{
 
 #seccion{
     display: grid;
+    grid-template-columns: 1fr;
     place-content: center;
     align-items: center;
+    justify-items: center;
 }
 
 /*Formulario de registro*/
@@ -97,4 +99,21 @@ main{
     padding: 5px;
     text-transform: uppercase;
     cursor: pointer;
+}
+
+/*Estilo de mensajes*/
+.exito-msg{
+    background-color: green;
+    text-transform: uppercase;
+    padding: 8px;
+    border-radius: 10px;
+    color: white;
+}
+
+.error-msg{
+    background-color: red;
+    text-transform: uppercase;
+    padding: 8px;
+    border-radius: 10px;
+    color: white;
 }
