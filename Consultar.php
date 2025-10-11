@@ -1,46 +1,69 @@
-<form method="get">
-    <input type="submit" name="mesLluvioso" value="Mes más lluvioso">
-    <input type="submit" name="test" value="test">
-</form>
-
 <?php
-if (isset($_GET['test'])) {
-    echo "test";
+# Realizar la consulta a la base de datos para obtener los meses y cantidades
+$query = "SELECT 
+                MONTH(fecha_ID) AS mes,
+                SUM(cantidad) AS total_cantidad
+            FROM lluvias
+            GROUP BY MONTH(fecha_ID)
+            ORDER BY mes;
+    ";
+
+# Obtener la conexión
+require_once 'Database.php';
+
+$con = new Database("lluvias");
+$result = $con->query($query);
+
+if (!$result->num_rows) {
+    die("No hay resultados");
 }
 
-if (isset($_GET['mesLluvioso'])) {
-    require_once 'Database.php';
+$nombre_meses = [
+    1 => "Enero",
+    2 => "Febrero",
+    3 => "Marzo",
+    4 => "Abril",
+    5 => "Mayo",
+    6 => "Junio",
+    7 => "Julio",
+    8 => "Agosto",
+    9 => "Septiembre",
+    10 => "Octubre",
+    11 => "Noviembre",
+    12 => "Diciembre",
+];
 
-    $con = new Database("lluvias");
-
-    $result = $con->query("SELECT 
-                    MONTH(fecha_ID) AS mes,
-                    SUM(cantidad) AS total_cantidad
-                FROM lluvias
-                GROUP BY MONTH(fecha_ID)
-                HAVING SUM(cantidad) = (
-                    SELECT MAX(suma_por_mes)
+$max_lluvia_query = "SELECT
+                        MAX(total_lluvia) AS max_lluvia
                     FROM (
-                        SELECT SUM(cantidad) AS suma_por_mes
-                        FROM lluvias
-                        GROUP BY MONTH(fecha_ID)
-                    ) AS sub
-                )
-                ORDER BY mes;");
+                        -- Subconsulta: Calcula la suma de lluvia para CADA mes
+                        SELECT
+                            SUM(cantidad) AS total_lluvia
+                        FROM
+                            lluvias
+                        GROUP BY
+                            MONTH(fecha_ID)
+                    ) AS LluviasMensual;";
 
-    var_dump($result);
+$lluvia = $con->query($max_lluvia_query)->fetch_assoc()["max_lluvia"];
 
-    if ($result) {
-        if ($result->num_rows === 0) {
-            // No existe la fecha entonces debemos consultar
-            while ($mes = $result->fetch_assoc()) {
-                echo $mes['mes'] . " con cantidad de: " . $mes['total_cantidad'] . "<br>";
-            }
-        } else {
-            $repetido = $result->fetch_assoc();
-            echo "<h3 class='error-msg'>No hay datos ingresados</h3>";
+?>
+<table>
+    <thead>
+        <tr>
+            <th>Mes</th>
+            <th>Cantidad</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php
+        while ($res = $result->fetch_assoc()) {
+            $clase_css = $lluvia == $res['total_cantidad'] ? " class='max_cant'" : "";
+            echo "<tr>";
+            echo "<td>" . $nombre_meses[$res['mes']] . "</td>";
+            echo "<td" . $clase_css . ">" . $res['total_cantidad'] . "</td>";
+            echo "</tr>";
         }
-    } else {
-        echo "<h3 class='error-msg'>Fallo al realizar la consultar</h3>";
-    }
-}
+        ?>
+    </tbody>
+</table>
