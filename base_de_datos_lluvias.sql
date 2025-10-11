@@ -18,24 +18,16 @@ GROUP BY MONTH(fecha_ID)
 ORDER BY mes;
 
 
--- Obtener el mes más lluvioso de todo el año
+-- Obtenemos solamente el valor máximo en cuanto a la cantidad de lluvia por mes
 SELECT
-    MONTH(fecha_ID) AS mes,
-    SUM(cantidad) AS total_lluvia
-FROM
-    lluvias
-GROUP BY
-    mes
-HAVING
-    total_lluvia = (
-        -- Encuentra el valor máximo de todas las sumas mensuales
-        SELECT MAX(total_lluvia)
-        FROM (
-            SELECT SUM(cantidad) AS total_lluvia
-            FROM lluvias
-            GROUP BY MONTH(fecha_ID)
-        ) AS SubConsultaMensual
-    )
-ORDER BY
-    mes;
+    MAX(total_lluvia) AS max_lluvia
+FROM (
+    -- Subconsulta: Calcula la suma de lluvia para CADA mes
+    SELECT
+        SUM(cantidad) AS total_lluvia
+    FROM
+        lluvias
+    GROUP BY
+        MONTH(fecha_ID)
+) AS LluviasMensual;
 
