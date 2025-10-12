@@ -121,3 +121,9 @@ main{
 .max_cant{
     background-color: #9a9a9a;
 }
+
+.consultar{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 50px;
+}

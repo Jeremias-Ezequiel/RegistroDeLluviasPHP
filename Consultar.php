@@ -47,23 +47,85 @@ $max_lluvia_query = "SELECT
 
 $lluvia = $con->query($max_lluvia_query)->fetch_assoc()["max_lluvia"];
 
+$datos_grafico = [
+    "fecha" => [],
+    "cantidad" => [],
+];
+
 ?>
-<table>
-    <thead>
-        <tr>
-            <th>Mes</th>
-            <th>Cantidad</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php
-        while ($res = $result->fetch_assoc()) {
-            $clase_css = $lluvia == $res['total_cantidad'] ? " class='max_cant'" : "";
-            echo "<tr>";
-            echo "<td>" . $nombre_meses[$res['mes']] . "</td>";
-            echo "<td" . $clase_css . ">" . $res['total_cantidad'] . "</td>";
-            echo "</tr>";
-        }
-        ?>
-    </tbody>
-</table>
+<div class="consultar">
+    <table>
+        <thead>
+            <tr>
+                <th>Mes</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            while ($res = $result->fetch_assoc()) {
+                $datos_grafico['fecha'][] = $nombre_meses[$res['mes']];
+                $datos_grafico['cantidad'][] = $res['total_cantidad'];
+
+                $clase_css = $lluvia == $res['total_cantidad'] ? " class='max_cant'" : "";
+                echo "<tr>";
+                echo "<td>" . $nombre_meses[$res['mes']] . "</td>";
+                echo "<td" . $clase_css . ">" . $res['total_cantidad'] . "</td>";
+                echo "</tr>";
+            }
+            $datos_grafico = json_encode($datos_grafico);
+            ?>
+        </tbody>
+    </table>
+    <div>
+        <h2>Cantidad de lluvia por mes</h2>
+        <div style="width: 80%; margin: auto;">
+            <canvas id="graficoLluvias"></canvas>
+        </div>
+    </div>
+</div>
+<script>
+    const ctx = document.getElementById("graficoLluvias").getContext("2d");
+    const data = <?php echo $datos_grafico ?>
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: data.fecha,
+            datasets: [{
+                label: "Cantidad de Lluvia (mm)",
+                data: data.cantidad,
+                backgroundColor: "rgba(75, 192, 192, 0.6)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1,
+            }, ],
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: "Cantidad (mm)",
+                        },
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Fecha",
+                        },
+                    },
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                    },
+                    title: {
+                        display: true,
+                        text: "Registro Diario de Lluvias",
+                    },
+                },
+            },
+        },
+    });
+</script>
