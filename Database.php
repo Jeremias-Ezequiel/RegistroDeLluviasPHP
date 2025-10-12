@@ -17,6 +17,11 @@ class Database
         }
     }
 
+    public function getConnection()
+    {
+        return $this->con;
+    }
+
     public function query($query)
     {
         $result = mysqli_query($this->con, $query);
