@@ -49,9 +49,40 @@ if (isset($_POST['registrar'])) {
         } else {
             $repetido = $result->fetch_assoc();
             echo "<h3 class='error-msg'>La fecha ya ha sido ingresada con un valor de " . $repetido['cantidad'] . "</h3>";
+            echo "<h2>¿Desea cambiar el valor de " . $repetido['cantidad'] . " a " . $cantidadRegistro . "?</h2>";
+?>
+            <form method="post" class="form-actualizar">
+                <button type="submit">No</button>
+                <button type="submit" name="cambiarValor">Si</button>
+                <input type="hidden" name="fechaRegistro" value="<?= $fechaRegistro ?>">
+                <input type="hidden" name="cantidadRegistro" value="<?= $cantidadRegistro ?>">
+            </form>
+<?php
         }
     } else {
         echo "<h3 class='error-msg'>Fallo al realizar la consultar</h3>";
+    }
+}
+
+if (isset($_POST['cambiarValor'])) {
+    require_once 'Database.php';
+
+    $db = new Database("lluvias");
+    $con = $db->getConnection();
+
+    $fechaRegistro = $_POST['fechaRegistro'];
+    $cantidadRegistro = $_POST['cantidadRegistro'];
+
+    $query = "UPDATE lluvias SET cantidad = $cantidadRegistro WHERE fecha_ID = '$fechaRegistro';";
+    if ($con->query($query)) {
+
+        if ($con->affected_rows) {
+            echo "<p class='exito-msg'>Se ha actualizado correctamente la fecha " . $fechaRegistro . " con el valor " . $cantidadRegistro . "</p>";
+        } else if ($con->affected_rows === 0) {
+            echo "<p class='error-msg'>El valor que se intenta actualizar es el mismo</p>";
+        } else {
+            echo "<p class='error-msg'>Ha ocurrido un error</p>";
+        }
     }
 }
 ?>

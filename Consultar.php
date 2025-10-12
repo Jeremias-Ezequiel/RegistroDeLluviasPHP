@@ -79,7 +79,7 @@ $datos_grafico = [
     </table>
     <div>
         <h2>Cantidad de lluvia por mes</h2>
-        <div style="width: 80%; margin: auto;">
+        <div style="width: 100%; margin: auto;">
             <canvas id="graficoLluvias"></canvas>
         </div>
     </div>
