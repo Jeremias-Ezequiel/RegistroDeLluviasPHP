@@ -31,3 +31,29 @@ FROM (
         MONTH(fecha_ID)
 ) AS LluviasMensual;
 
+-- UH - 003
+SELECT
+    DATE(l1.fecha_ID) AS dia_lluvioso,
+    l1.cantidad
+FROM
+    lluvias l1
+INNER JOIN (
+    -- Subconsulta: Encuentra la MÁXIMA cantidad de lluvia por día para CADA mes
+    SELECT
+        MONTH(fecha_ID) AS mes,
+        MAX(cantidad) AS maxima_lluvia_diaria
+    FROM
+        lluvias
+    GROUP BY
+        mes
+) AS MaximosPorMes
+ON
+    -- Condición 1: Une los registros por el mismo mes
+    MONTH(l1.fecha_ID) = MaximosPorMes.mes 
+    AND 
+    -- Condición 2: Filtra solo aquellos registros cuya cantidad coincide con la máxima de su mes
+    l1.cantidad = MaximosPorMes.maxima_lluvia_diaria
+ORDER BY
+    dia_lluvioso;
+
+    
