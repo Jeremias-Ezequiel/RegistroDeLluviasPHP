@@ -84,6 +84,66 @@ $datos_grafico = [
         </div>
     </div>
 </div>
+
+<div>
+    <h2>Dias más lluviosos</h2>
+    <?php
+    # Realizar la consultar
+    $query = "SELECT
+                DATE(l1.fecha_ID) AS dia_lluvioso,
+                l1.cantidad
+            FROM
+                lluvias l1
+            INNER JOIN (
+                -- Subconsulta: Encuentra la MÁXIMA cantidad de lluvia por día para CADA mes
+                SELECT
+                    MONTH(fecha_ID) AS mes,
+                    MAX(cantidad) AS maxima_lluvia_diaria
+                FROM
+                    lluvias
+                GROUP BY
+                    mes
+            ) AS MaximosPorMes
+            ON
+                -- Condición 1: Une los registros por el mismo mes
+                MONTH(l1.fecha_ID) = MaximosPorMes.mes 
+                AND 
+                -- Condición 2: Filtra solo aquellos registros cuya cantidad coincide con la máxima de su mes
+                l1.cantidad = MaximosPorMes.maxima_lluvia_diaria
+            ORDER BY
+                dia_lluvioso;";
+
+    $result = $con->query($query);
+    $fechas_maximos = [];
+
+    while ($res = $result->fetch_assoc()) {
+        $fechas_maximos[] = [
+            "fecha" => $res['dia_lluvioso'],
+            "cantidad" => $res['cantidad']
+        ];
+    }
+
+    ?>
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            foreach ($fechas_maximos as $fecha) {
+                echo "<tr>";
+                echo "<td>$fecha[fecha]</td>";
+                echo "<td>$fecha[cantidad]</td>";
+                echo "</tr>";
+            }
+            ?>
+        </tbody>
+    </table>
+</div>
+
 <script>
     const ctx = document.getElementById("graficoLluvias").getContext("2d");
     const data = <?php echo $datos_grafico ?>
