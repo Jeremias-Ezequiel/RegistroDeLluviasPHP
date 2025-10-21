@@ -54,95 +54,112 @@ $datos_grafico = [
 
 ?>
 <div class="consultar">
-    <table>
-        <thead>
-            <tr>
-                <th>Mes</th>
-                <th>Cantidad</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            while ($res = $result->fetch_assoc()) {
-                $datos_grafico['fecha'][] = $nombre_meses[$res['mes']];
-                $datos_grafico['cantidad'][] = $res['total_cantidad'];
+    <div>
+        <h2>Lluvia por meses</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Mes</th>
+                    <th>Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                while ($res = $result->fetch_assoc()) {
+                    $datos_grafico['fecha'][] = $nombre_meses[$res['mes']];
+                    $datos_grafico['cantidad'][] = $res['total_cantidad'];
 
-                $clase_css = $lluvia == $res['total_cantidad'] ? " class='max_cant'" : "";
-                echo "<tr>";
-                echo "<td>" . $nombre_meses[$res['mes']] . "</td>";
-                echo "<td" . $clase_css . ">" . $res['total_cantidad'] . "</td>";
-                echo "</tr>";
-            }
-            $datos_grafico = json_encode($datos_grafico);
-            ?>
-        </tbody>
-    </table>
+                    $clase_css = $lluvia == $res['total_cantidad'] ? " class='max_cant'" : "";
+                    echo "<tr>";
+                    echo "<td>" . $nombre_meses[$res['mes']] . "</td>";
+                    echo "<td" . $clase_css . ">" . $res['total_cantidad'] . "</td>";
+                    echo "</tr>";
+                }
+                $datos_grafico = json_encode($datos_grafico);
+                ?>
+            </tbody>
+        </table>
+    </div>
     <div>
         <h2>Cantidad de lluvia por mes</h2>
         <div style="width: 100%; margin: auto;">
             <canvas id="graficoLluvias"></canvas>
         </div>
     </div>
-</div>
-
-<div>
-    <h2>Dias más lluviosos</h2>
-    <?php
-    # Realizar la consultar
-    $query = "SELECT
-                DATE(l1.fecha_ID) AS dia_lluvioso,
-                l1.cantidad
-            FROM
-                lluvias l1
-            INNER JOIN (
-                -- Subconsulta: Encuentra la MÁXIMA cantidad de lluvia por día para CADA mes
-                SELECT
-                    MONTH(fecha_ID) AS mes,
-                    MAX(cantidad) AS maxima_lluvia_diaria
+    <div>
+        <h2>Dias más lluviosos</h2>
+        <?php
+        # Realizar la consultar
+        $query = "SELECT
+                    DATE(l1.fecha_ID) AS dia_lluvioso,
+                    l1.cantidad
                 FROM
-                    lluvias
-                GROUP BY
-                    mes
-            ) AS MaximosPorMes
-            ON
-                -- Condición 1: Une los registros por el mismo mes
-                MONTH(l1.fecha_ID) = MaximosPorMes.mes 
-                AND 
-                -- Condición 2: Filtra solo aquellos registros cuya cantidad coincide con la máxima de su mes
-                l1.cantidad = MaximosPorMes.maxima_lluvia_diaria
-            ORDER BY
-                dia_lluvioso;";
+                    lluvias l1
+                INNER JOIN (
+                    -- Subconsulta: Encuentra la MÁXIMA cantidad de lluvia por día para CADA mes
+                    SELECT
+                        MONTH(fecha_ID) AS mes,
+                        MAX(cantidad) AS maxima_lluvia_diaria
+                    FROM
+                        lluvias
+                    GROUP BY
+                        mes
+                ) AS MaximosPorMes
+                ON
+                    -- Condición 1: Une los registros por el mismo mes
+                    MONTH(l1.fecha_ID) = MaximosPorMes.mes 
+                    AND 
+                    -- Condición 2: Filtra solo aquellos registros cuya cantidad coincide con la máxima de su mes
+                    l1.cantidad = MaximosPorMes.maxima_lluvia_diaria
+                ORDER BY
+                    dia_lluvioso;";
 
-    $result = $con->query($query);
-    $fechas_maximos = [];
-
-    while ($res = $result->fetch_assoc()) {
-        $fechas_maximos[] = [
-            "fecha" => $res['dia_lluvioso'],
-            "cantidad" => $res['cantidad']
+        $result = $con->query($query);
+        $fechas_maximos_tabla = [];
+        $fecha_dia_maximo = [
+            "dias" => [],
+            "cantidad" => [],
         ];
-    }
 
-    ?>
-    <table>
-        <thead>
-            <tr>
-                <th>Fecha</th>
-                <th>Cantidad</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            foreach ($fechas_maximos as $fecha) {
-                echo "<tr>";
-                echo "<td>$fecha[fecha]</td>";
-                echo "<td>$fecha[cantidad]</td>";
-                echo "</tr>";
-            }
-            ?>
-        </tbody>
-    </table>
+        while ($res = $result->fetch_assoc()) {
+            $fechas_maximos_tabla[] = [
+                "fecha" => $res['dia_lluvioso'],
+                "cantidad" => $res['cantidad'],
+            ];
+            $fecha_dia_maximo["fecha"][] = $res['dia_lluvioso'];
+            $fecha_dia_maximo["cantidad"][] = $res['cantidad'];
+        }
+
+        $datos_grafico_diario_json = json_encode($fecha_dia_maximo);
+
+        ?>
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cantidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                foreach ($fechas_maximos_tabla as $fecha) {
+                    echo "<tr>";
+                    echo "<td>$fecha[fecha]</td>";
+                    echo "<td>$fecha[cantidad]</td>";
+                    echo "</tr>";
+                }
+                ?>
+            </tbody>
+        </table>
+    </div>
+    <div>
+        <h2>Cantidad de lluvia por dia</h2>
+        <div style="width: 100%; margin: auto;">
+            <canvas id="graficoDias"></canvas>
+        </div>
+    </div>
 </div>
+
 
 <script>
     const ctx = document.getElementById("graficoLluvias").getContext("2d");
@@ -188,4 +205,47 @@ $datos_grafico = [
             },
         },
     });
+
+    const dataDiaria = <?php echo $datos_grafico_diario_json ?>;
+
+    const configDiaria = {
+        type: "bar",
+        data: {
+            labels: dataDiaria.fecha,
+            datasets: [{
+                label: "Lluvia Máxima Diaria (mm)",
+                data: dataDiaria.cantidad, // Usar las cantidades
+                backgroundColor: "rgba(255, 99, 132, 0.6)",
+                borderColor: "rgba(255, 99, 132, 1)",
+                borderWidth: 1,
+            }, ],
+        },
+        options: {
+            indexAxis: 'y', // ¡Esto lo hace horizontal!
+            responsive: true,
+            categoryPercentage: 0.9, // Por defecto es 0.8. Reduce este valor (ej: 0.6)
+            barPercentage: 0.7,
+            scales: {
+                y: {
+                    // Los títulos de los ejes se invierten en el gráfico horizontal
+                    title: {
+                        display: true,
+                        text: "Día"
+                    },
+                    ticks: {
+                        autoSkip: false,
+                    },
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: "Cantidad (mm)"
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+    };
+
+    const diaLluvias = new Chart(document.getElementById('graficoDias'), configDiaria);
 </script>
