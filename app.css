@@ -71,19 +71,23 @@ main{
 /*Formulario de registro*/
 
 #formulario-registro{
-    max-height: 500px;
-    width: 400px;
+    height: 350px;
+    width: 600px;
     min-height: 300px;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    gap: 40px;
     margin: 50px 0px;
+    background-color: #e1e1e1;
+    padding: 20px;
+    border-radius: 10px;
 }
 
 #formulario-registro legend{
     text-align: center;
     text-transform: uppercase;
     font-weight: 500;
+    font-size: 25px;
 }
 
 #formulario-registro div{
@@ -91,15 +95,23 @@ main{
     grid-template-columns: 200px 1fr;
 }
 
+#formulario-registro label{
+    font-size: 16px;
+}
+
 #formulario-registro input{
-    padding-right: 5px;
+    padding: 4px;
 }
 
 #formulario-registro button{
     padding: 5px;
     text-transform: uppercase;
     cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 18px;
 }
+
 
 /*Estilo de mensajes*/
 .exito-msg{
@@ -108,6 +120,8 @@ main{
     padding: 8px;
     border-radius: 10px;
     color: white;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 .error-msg{
@@ -116,6 +130,8 @@ main{
     padding: 8px;
     border-radius: 10px;
     color: white;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 .max_cant{
@@ -135,4 +151,5 @@ main{
     font-weight: bold;
     text-transform: uppercase;
     cursor: pointer;
+    font-size: 18px;
 }
