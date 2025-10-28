@@ -31,7 +31,7 @@ if (isset($_POST['registrar'])) {
     $fechaRegistro = $_POST['fecha'];
     $cantidadRegistro = $_POST['cantidad'];
 
-    if (!$cantidadRegistro || !$fechaRegistro) {
+    if ($cantidadRegistro < 0 || !$fechaRegistro) {
         echo "<h3 class='error-msg'>El campo date y/o cantidad no pueden estar vacio</h3>";
         return;
     }
