@@ -184,22 +184,26 @@ $datos_grafico = [
                         title: {
                             display: true,
                             text: "Cantidad (mm)",
+                            color: 'white',
                         },
                     },
                     x: {
                         title: {
                             display: true,
                             text: "Fecha",
+                            color: 'white',
                         },
                     },
                 },
                 plugins: {
                     legend: {
                         display: true,
+                        color: 'white',
                     },
                     title: {
                         display: true,
                         text: "Registro Diario de Lluvias",
+                        color: 'white',
                     },
                 },
             },
@@ -218,6 +222,7 @@ $datos_grafico = [
                 backgroundColor: "rgba(255, 99, 132, 0.6)",
                 borderColor: "rgba(255, 99, 132, 1)",
                 borderWidth: 1,
+                color: 'white',
             }, ],
         },
         options: {
@@ -230,16 +235,19 @@ $datos_grafico = [
                     // Los títulos de los ejes se invierten en el gráfico horizontal
                     title: {
                         display: true,
-                        text: "Día"
+                        text: "Día",
+                        color: 'white',
                     },
                     ticks: {
                         autoSkip: false,
+                        color: 'white',
                     },
                 },
                 x: {
                     title: {
                         display: true,
-                        text: "Cantidad (mm)"
+                        text: "Cantidad (mm)",
+                        color: 'white',
                     },
                     beginAtZero: true
                 }

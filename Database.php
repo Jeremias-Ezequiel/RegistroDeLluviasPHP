@@ -4,7 +4,7 @@ class Database
 {
     private $servidor = "localhost";
     private $user = "root";
-    private $pass = "abcdef2020";
+    private $pass = "";
     private $dbName = "lluvias";
     private $con;
 

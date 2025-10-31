@@ -49,7 +49,7 @@ if (isset($_POST['registrar'])) {
         } else {
             $repetido = $result->fetch_assoc();
             echo "<h3 class='error-msg'>La fecha ya ha sido ingresada con un valor de " . $repetido['cantidad'] . "</h3>";
-            echo "<h2>¿Desea cambiar el valor de " . $repetido['cantidad'] . " a " . $cantidadRegistro . "?</h2>";
+            echo "<h2 style='color:white'>¿Desea cambiar el valor de " . $repetido['cantidad'] . " a " . $cantidadRegistro . "?</h2>";
 ?>
             <form method="post" class="form-actualizar">
                 <button type="submit">No</button>
